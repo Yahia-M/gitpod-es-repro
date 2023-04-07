@@ -2,8 +2,10 @@ version: '3'
 
 services:
   elasticsearch:
-    image: elasticsearch:7.10.1
+    image: elasticsearch:8.7.0
     environment:
+      - network.host= 127.0.0.1
+      - http.port=9200
       - xpack.security.enabled=false
       - discovery.type=single-node
     ulimits:
