@@ -1,17 +1,32 @@
 version: '3'
-
 services:
   elasticsearch:
-    image: elasticsearch:8.7.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
     environment:
-      - network.host= 127.0.0.1
-      - http.port=9200
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
+      - node.name=es-node
+      - cluster.name=es-cluster
+      - discovery.seed_hosts=elasticsearch
     ports:
-      - '9200:9200'
-      - '9300:9300'
+      - 9200:9200
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.7.0
+    environment:
+      - pipeline.batch.size=1
+      - pipeline.workers=1
+      - queue.max_events=1
+      - queue.type=memory
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    networks:
+      - esnet
+
+volumes:
+  esdata:
+
+networks:
+  esnet:
